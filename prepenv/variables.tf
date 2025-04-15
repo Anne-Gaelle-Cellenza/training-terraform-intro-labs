@@ -147,13 +147,10 @@ variable "AKSPrivateDNSZoneId" {
 
 variable "TrainingList" {
   type        = list(any)
-  description = "The trainee list"
+  description = "The trainees list"
   default = [
     "david.frappart",
     "peter.parker",
-    "bruce.wayne",
-
-
-
+    "bruce.wayne"
   ]
 }
