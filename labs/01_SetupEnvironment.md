@@ -94,7 +94,7 @@ Notes:
 
     The `required_version` setting allows you to set a version constraint on the installed Terraform version.
 
-1. In the Terraform configuration block, add the backend configuration using information on the Storage Account you created previously:
+1. In the **Terraform configuration block**, add the backend configuration using information on the Storage Account you created previously:
 
     ```hcl
     backend "azurerm" {
@@ -111,7 +111,7 @@ Notes:
     
     Refer tp https://developer.hashicorp.com/terraform/language/backend/azurerm
 
-1. In the Terraform configuration block, add the provider requirements:
+1. In the **Terraform configuration block**, add the provider requirements:
 
     ```hcl
     required_providers {
@@ -127,15 +127,13 @@ Notes:
     provider "azurerm" {
       # required when the User, Service Principal, or Identity running Terraform lacks the permissions to register Azure Resource Providers
       resource_provider_registrations = "none"
-      #skip_provider_registration = true
       features {}
       subscription_id = "Id of the provided subscription"
     }
     ```
 
     The configuration of the *azurerm* provider:
-    - **resource_provider_registrations**: (Optional) Set of Azure Resource Providers to automatically register when initializing the AzureRM Provider
-    - **skip_provider_registration**: The provider will not try to register all the Resource Providers it supports (default is `false`, meaning the Azure Provider will automatically register all of the Resource Providers which it supports on launch)
+    - **resource_provider_registrations**: (Optional) Set of Azure Resource Providers to automatically register when initializing the AzureRM Provider, set it to `none` (by default, Terraform will attempt to register any Resource Providers that it supports on launch)
     - **feature**: List of features that might be activated on the provider
     - **subscription_id**: The Id of the subscription where to deploy resources
 
@@ -162,7 +160,6 @@ terraform {
 provider "azurerm" {
   # required when the User, Service Principal, or Identity running Terraform lacks the permissions to register Azure Resource Providers
   resource_provider_registrations = "none"
-  #skip_provider_registration = true
   features {}
   subscription_id = "Id of the provided subscription"
 }
@@ -234,7 +231,6 @@ It now should be
 provider "azurerm" {
   # required when the User, Service Principal, or Identity running Terraform lacks the permissions to register Azure Resource Providers
   resource_provider_registrations = "none"
-  #skip_provider_registration = true
   features {}
 }
 ```
