@@ -53,6 +53,7 @@ Create a `network.tf` file, and add the following blocks to reference a module f
 ```hcl
 module "network" {
   source              = "Azure/network/azurerm"
+  version             = "5.3.0"
   resource_group_name = data.azurerm_resource_group.rg_training.name
   address_spaces      = ["10.0.0.0/16", "10.2.0.0/16"]
   subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
@@ -72,9 +73,47 @@ $env:ARM_SUBSCRIPTION_ID="[Id of the provided training subscription]"
 terraform init -backend-config=".\configuration\dev-backend.hcl"
 ```
 
+You might get an error on incompatible versions between the root AzureRM provider and the one required for the module...  
+
+![azurerm_vnet_provider_error](../assets/azurerm_vnet_provider_error.PNG)
+
+You can run the `terraform providers` command for more details and decide on what action to take:
+
+![provider_versions_details](../assets/provider_versions_details.PNG)
+
+In that case, we can see the version of the AzureRM provider requested by the the VNET module is `>= 3.0.0, < 4.0.0` where the version of the root AzureRM provider is `>= 4.0.0`.  
+Here, one possible solution is to update the AzureRM provider version in `version.tf` file to fit the module request (here a version downgrade):
+
+```hcl
+terraform {
+  required_version = ">= 1.0.0"
+
+  backend "azurerm" {}
+
+  required_providers {
+    azurerm = ">= 3.0.0"
+  }
+}
+```
+And next run the `init` command with `-upgrade`
+
+```powershell
+terraform init -backend-config=".\configuration\dev-backend.hcl" -upgrade
+```
+
+Now the module is correctly donwloaded
+
 ![module_download](../assets/module_download.PNG)
 
-> The downloaded module can be found in the *.terraform* folder.
+> The downloaded module can be found in the *.terraform* folder.  
+> 
+> **!BEWARE!**  
+> Downgrading a module version is **not** the most recommended approach...  
+> This will surely imply to also modify some of the provider configuration and resources configurations.  
+> 
+> One example here is the `resource_provider_registrations = none` provider feature added in v4 in replacement to `skip_provider_registration = true`.  
+> With the downgrade to v3 for AzureRM provider, we also need to replace that argument in the provider block!  
+> Please proceed now or you will get an error at `terraform plan/apply` steps.  
 
 ### Exercise 2: Instantiate the module
 
