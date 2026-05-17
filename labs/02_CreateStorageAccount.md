@@ -21,14 +21,14 @@ In this lab, you will learn how to deploy a Storage Account using terraform work
 
 After you complete this lab, you will be able to:
 
--   Deploy a Storage Account
--   Understand the Terraform workflow.
+- Deploy a Storage Account,
+- Understand the Terraform workflow.
 
 ## Instructions
 
 ### Before you start
 
-- Ensure Terraform (version >= 1.0.0) is installed and available from system PATH.
+- Ensure Terraform (version ~> 1.13.0) is installed and available from system PATH.
 - Ensure Azure CLI is installed.
 - Check your access to the Azure Subscription and Resource Group provided for this training.
 - Your environment is setup and ready to use from the lab *1-Setup environment*.
@@ -46,7 +46,7 @@ data "azurerm_resource_group" "rg_training" {
 ```
 
 > Since this Resource Group has been created outside of Terraform, we are using a data block to retrieve its configuration.  
-> No change will be done on this Resource Group, this template does not manage its lifecyle.
+> Using a `data` block protects from bringing changes to the resource: current Terrafrom template file doesn't manage the resource group lifecyle. No change will be done on this Resource Group.
 
 #### Create a Storage Account in this Resource Group
 
@@ -68,7 +68,7 @@ resource "azurerm_storage_account" "training_storage" {
 
 > We use the previous data block to retrieve the *resource_group_name* attribute.
 
-Open a new shell and run the following commands:
+Open a (new) shell session and run the following commands:
 
 ```powershell
 az login
@@ -78,7 +78,7 @@ terraform plan
 ```
 
 The *tfstate* file is refreshed and compared to Terraform templates, and a plan is generated indicating infrastructure updates.  
-The plan shows a new resource to create as "Plan: 1 to add, 0 to change, 0 to destroy.".  
+The plan shows a new resource to create as `Plan: 1 to add, 0 to change, 0 to destroy.`.  
 Run the `apply` command:
 
 ```powershell
@@ -86,8 +86,8 @@ terraform apply
 ```
 
 Confirm the creation (*yes* response).  
-The *tfstate* file is updated with the new resource.  
-Use the Azure portal to confirm Storage Account Creation.
+The resource is created and the *tfstate* file is updated with the new resource.  
+Use the Azure portal to confirm Storage Account creation.
 
 ### Exercise 2: Update the Storage Account with Terraform
 
@@ -106,8 +106,8 @@ Run the `plan` command:
 terraform plan
 ```
 
-The plan shows a single resource to update as "Plan: 0 to add, 1 to change, 0 to destroy.".
-> Terraform has refreshed its state before generating its plan.  
+The plan shows a single resource to update as `Plan: 0 to add, 1 to change, 0 to destroy.`.
+> Terraform has refreshed its state before generating the plan.  
 > The plan is generated comparing the refreshed *tfstate* and the current configuration.
 
 Run the `apply` command (and confirm):
@@ -129,7 +129,7 @@ terraform plan
 
 The plan shows that the Storage Account needs to be updated.
 
-> Terraform has refreshed its state before generating its plan: the update done using the Azure portal is seen as a difference between the Terraform template configuration, and the real world.  
+> Terraform has refreshed its state before generating the plan: the update done using the Azure portal is seen as a difference between the Terraform template configuration, and the real world.  
 
 Run the `apply` command (and confirm):
 
@@ -153,7 +153,7 @@ Run the `plan` command:
 terraform plan
 ```
 
-The plan is indicating a resource to delete and a resource to create "Plan: 1 to add, 0 to change, 1 to destroy.".
+The plan is indicating a resource to delete and a resource to create `Plan: 1 to add, 0 to change, 1 to destroy.`.
 
 > The azurerm provider will always try to perform update in-place actions. When it's not possible (changing the name of a resource for instance), a delete/create operation is done.
 
@@ -173,11 +173,11 @@ Run the `destroy` command:
 terraform destroy
 ```
 
-The plan is indicating a resource to delete "Plan: 0 to add, 0 to change, 1 to destroy.".  
+The plan is indicating a resource to delete `Plan: 0 to add, 0 to change, 1 to destroy.`.  
 Confirm the deletion (*yes* response).
 
 Note:
 > `apply` and `destroy` commands accept an `-auto-approve` option to the command line that avoids querying for user validation.  
-> This is to be used carefully, e.g. to avoid accidently deleting resources.
+> This is to be used carefully, e.g. to avoid accidently deleting resources (not only in case of `destroy`!).
 
 Use the Azure portal to confirm Storage Account deletion.

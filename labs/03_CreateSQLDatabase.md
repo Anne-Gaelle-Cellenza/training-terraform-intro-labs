@@ -11,10 +11,10 @@
       - [Create Azure SQL Server and Database](#create-azure-sql-server-and-database)
       - [Deploy resources](#deploy-resources)
       - [Remove resources](#remove-resources)
-    - [Exercise 2: Deploy another environment](#exercise-2-deploy-another-environment)
+    - [Exercise 2: Deploy to another environment](#exercise-2-deploy-to-another-environment)
       - [Create backend and tfvars configurations for prod](#create-backend-and-tfvars-configurations-for-prod)
-      - [Deploy resources](#deploy-resources-1)
-      - [Remove resources](#remove-resources-1)
+      - [Deploy resources to the new environment](#deploy-resources-to-the-new-environment)
+      - [Remove new environment resources](#remove-new-environment-resources)
 
 ## Lab overview
 
@@ -24,16 +24,16 @@ In this lab, you will learn how to deploy an Azure SQL Database and use Terrafor
 
 After you complete this lab, you will be able to:
 
--   Deploy an Azure SQL Database
--   Manage sensitive data using environment variable
--   Work with variables
--   Use interpolation.
+- Deploy an Azure SQL Database
+- Manage sensitive data using environment variable
+- Work with variables
+- Use interpolation.
 
 ## Instructions
 
 ### Before you start
 
-- Ensure Terraform (version >= 1.0.0) is installed and available from system PATH.
+- Ensure Terraform (version ~> 1.13.0) is installed and available from system PATH.
 - Ensure Azure CLI is installed.
 - Check your access to the Azure Subscription and Resource Group provided for this training.
 - Your environment is setup and ready to use from the lab *1-Setup environment*.
@@ -51,7 +51,7 @@ data "azurerm_resource_group" "rg_training" {
 ```
 
 > Since this Resource Group has been created outside of Terraform, we are using a data block to retrieve its configuration.  
-> No change will be done on this Resource Group, this template does not manage its lifecyle.
+> Using a `data` block protects from bringing changes to the resource: current Terrafrom template file doesn't manage the resource group lifecyle. No change will be done on this Resource Group.
 
 #### Add variables
 
@@ -86,15 +86,15 @@ variable "location" {
 The Terraform template needs values for these three variables in order to use them.  
 
 Setting values for variables can be done using different ways:
+
 - Through an environment variable matching the name of the variable, prefixed with *TF_VAR_* (for example `TF_VAR_project_name="myproject"`)
 - thanks to a `-var` option in the command line (for example `-var='project_name="myproject"'`)
 - thanks to a `-var-file` option in the command line, providing the path to a *.tfvars* file (for example `-var-file=".\configuration\training.tfvars"`) ; this file is to be provided at `plan` and `apply` phases.
 
-Variables are referenced within Terraform template files as attributes on an object named `var`, e.g. `var.project_name`.
+Variables are referenced within Terraform template files as attributes of an object named `var`, e.g. `var.project_name`.
 
 We will use a *tfvars* file for `admin_account_login`, `project_name` and `location` and an environment variable for `admin_account_password`.  
 > Environment variables are a convenient way to manage sensitive data. There is no risk to commit them and this mechanism can easily be included in CI/CD tools.
-> Note that since `admin_account_login` has a declared default value, it is not mandatory to provide a new one.
 
 In the *configuration* folder, create a file named `dev.tfvars` and add this content:
 
@@ -104,7 +104,8 @@ project_name = "sampledev_with_my_trigram" # <-- replace with a unique name
 location = "westeurope"
 ```
 
-> `project_name` will be used to create resources with a public FQDN: choose an unique one for your resources.
+> `project_name` will be used to create resources with a public FQDN: choose an unique one for your resources (e.g. add you trigram).
+> Note that since `admin_account_login` has a declared default value, it is not mandatory to provide a new one (you can try with omitting it in the tfvars file).
 
 #### Create Azure SQL Server and Database
 
@@ -134,17 +135,19 @@ For the name of the `azurerm_mssql_server` instance, we use the interpolation sy
 
 #### Deploy resources
 
-Open a new shell and run the following commands:
+Open a (new) shell session and run the following commands:
 
 ```powershell
 az login
 $env:ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
-$env:TF_VAR_admin_account_password="a_password_compliant_with_azure_sql_server_policy"
+$env:TF_VAR_admin_account_password="a_password_compliant_with_azure_sql_server_policy" # e.g. "Pwd@TFdev26"
 terraform init -backend-config=".\configuration\dev-backend.hcl" [-reconfigure]
 terraform plan -var-file=".\configuration\dev.tfvars"
 ```
 
-The plan is indicating two resources to create "Plan: 2 to add, 0 to change, 0 to destroy.".  
+> You might need to add the `-reconfigure` option to `terraform init` in case you want to update the current Terraform configuraiton (modules and porviders).
+
+The plan is indicating two resources to create `Plan: 2 to add, 0 to change, 0 to destroy.`.  
 
 Run the `apply` command:
 
@@ -168,17 +171,17 @@ Confirm the deletion (*yes* response).
 
 Note:
 > `apply` and `destroy` commands accept an `-auto-approve` option to the command line that avoids querying for user validation.  
-> This is to be used carefully, e.g. to avoid accidently deleting resources.
+> This is to be used carefully, e.g. to avoid accidently deleting resources (not only in case of `destroy`!).
 
 Use the Azure portal to confirm resources deletion.
 
-### Exercise 2: Deploy another environment
+### Exercise 2: Deploy to another environment
 
-In order to deploy another environment, specific *backend* and *tfvars* files for this new environment must be created.
+In order to deploy to another environment, specific *backend* and *tfvars* files for this new environment must be created.
 
 #### Create backend and tfvars configurations for prod
 
-In the *configuration* folder, create a new file named `prod-backend.hcl` with the following content
+In the *configuration* folder, create a new file named `prod-backend.hcl` with the following content:
 
 ```hcl
 resource_group_name  = "name of the Resource Group of the Storage Account"
@@ -187,7 +190,7 @@ container_name       = "Name of the container"
 key                  = "training-prod.tfstate"
 ```
 
-In the *configuration* folder, create a new file named `prod.tfvars` with the following content
+In the *configuration* folder, create a new file named `prod.tfvars` with the following content:
 
 ```hcl
 admin_account_login = "trainingadmindb"
@@ -195,22 +198,23 @@ project_name = "[a project name]prod"
 location = "westeurope"
 ```
 
-#### Deploy resources
+#### Deploy resources to the new environment
 
-In a new shell, run the following command in sequence:
+In a shell window, run the following command in sequence:
 
 ```powershell
 az login
 $env:ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
-$env:TF_VAR_admin_account_password="a_password_compliant_with_azure_sql_server_policy_but_not_the_same_used_for_dev"
+$env:TF_VAR_admin_account_password="a_password_compliant_with_azure_sql_server_policy_but_not_the_same_used_for_dev" # e.g. "Pwd@TFprod26"
 terraform init -backend-config=".\configuration\prod-backend.hcl" -reconfigure
 terraform plan -var-file=".\configuration\prod.tfvars"
 terraform apply -var-file=".\configuration\prod.tfvars"
 ```
 
-> Prod environment has its own *backend configuration* and *tfvars* files. It can be deployed within another subscription (e.g. accordingly setting the `ARM_SUBSCRIPTION_ID` environment variable).
+> Prod environment has its own *backend configuration* and *tfvars* files. It can be deployed within another subscription (e.g. accordingly setting the `ARM_SUBSCRIPTION_ID` environment variable).  
+> The `-reconfigure` option to `terraform init` is required here because the backend changed.
 
-#### Remove resources
+#### Remove new environment resources
 
 In a (new) shell, run the following command in sequence
 
@@ -221,4 +225,3 @@ $env:TF_VAR_admin_account_password="a_password_compliant_with_azure_sql_server_p
 terraform init -backend-config=".\configuration\prod-backend.hcl" [-reconfigure]
 terraform destroy -var-file=".\configuration\prod.tfvars"
 ```
-
