@@ -18,14 +18,14 @@ In this lab, you will learn how to deploy an Azure Virtual Machine.
 
 After you complete this lab, you will be able to:
 
--   Deploy an Azure Virtual Machine
--   Understand how Terraform manages dependencies.
+- Deploy an Azure Virtual Machine,
+- Understand how Terraform manages dependencies.
 
 ## Instructions
 
 ### Before you start
 
-- Ensure Terraform (version >= 1.0.0) is installed and available from system PATH.
+- Ensure Terraform (version ~> 1.13.0) is installed and available from system PATH.
 - Ensure Azure CLI is installed.
 - Check your access to the Azure Subscription and Resource Group provided for this training.
 - Your environment is setup and ready to use from the lab *1-Setup environment*.
@@ -43,7 +43,7 @@ data "azurerm_resource_group" "rg_training" {
 ```
 
 > Since this Resource Group has been created outside of Terraform, we are using a data block to retrieve its configuration.  
-> No change will be done on this Resource Group, this template does not manage its lifecyle.  
+> Using a `data` block protects from bringing changes to the resource: current Terrafrom template file doesn't manage the resource group lifecyle. No change will be done on this Resource Group.
 
 #### Create an Azure Virtual Machine
 
@@ -104,14 +104,14 @@ resource "azurerm_virtual_network" "vn_training" {
 }
 
 ```
+
 Terraform resource creation order is determined using implicit and explicit dependencies (explicit dependency is achieved using the attribute `depends_on` - https://www.terraform.io/docs/language/meta-arguments/depends_on.html).  
 
 In this template, resources are intentionally in the wrong order.  
 We will see that this does not prevent Terraform from creating resources in the right order (first the virtual network and subnet, next the network interface, and finally the virtual machine).  
-Terraform bases its order creation on implicit dependencies, defined with using resources attributes in dependent objects (e.g. the VM using id attribute from the NIC).  
+Terraform bases its order creation on **implicit** dependencies, defined with using resources attributes in dependent objects (e.g. the VM using id attribute from the NIC).  
 
-
-Open a new shell and run the following commands:
+Open a (new) shell session and run the following commands:
 
 ```powershell
 az login
@@ -121,6 +121,7 @@ terraform plan
 ```
 
 The plan is indicating four resources to create, which are:
+
 - azurerm_linux_virtual_machine
 - azurerm_network_interface
 - azurerm_subnet
@@ -150,7 +151,6 @@ Confirm the deletion (*yes* response).
 
 Note:
 > `apply` and `destroy` commands accept an `-auto-approve` option to the command line that avoids querying for user validation.  
-> This is to be used carefully, e.g. to avoid accidently deleting resources.
+> This is to be used carefully, e.g. to avoid accidently deleting resources (not only in case of `destroy`!).
 
 Use the Azure portal to confirm resources deletion.
-

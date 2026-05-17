@@ -28,14 +28,14 @@ It will output the final name of the storage.
 
 After you complete this lab, you will be able to:
 
--   Create a module to manage Storage Account
--   Understand how to use Terraform modules
+- Create a module to manage Storage Account
+- Understand how to use Terraform modules
 
 ## Instructions
 
 ### Before you start
 
-- Ensure Terraform (version >= 1.0.0) is installed and available from system PATH.
+- Ensure Terraform (version ~> 1.13.0) is installed and available from system PATH.
 - Ensure Azure CLI is installed.
 - Check your access to the Azure Subscription and Resource Group provided for this training.
 - Your environment is setup and ready to use from the lab *1-Setup environment*.
@@ -53,7 +53,7 @@ data "azurerm_resource_group" "rg_training" {
 ```
 
 > Since this Resource Group has been created outside of Terraform, we are using a data block to retrieve its configuration.  
-> No change will be done on this Resource Group, this template does not manage its lifecyle.  
+> Using a `data` block protects from bringing changes to the resource: current Terrafrom template file doesn't manage the resource group lifecyle. No change will be done on this Resource Group.
 
 #### Create the tree hierarchy for the module
 
@@ -96,8 +96,8 @@ variable "container_name" {
 }
 ```
 
-> For variables with no default, values must be passed when a consummer instanciate the module.  
-> For variables with default, this latter is used in case no other input is given at instantiation time.
+> For variables with no default, values must be passed when a consumer instanciates the module.  
+> For variables with default values, this latter is used in case no other input is given at instantiation time.
 
 In the **main.tf** file add the module resources definition:
 
@@ -163,6 +163,7 @@ terraform apply -var-file="..\configuration\dev\dev.tfvars"
 ```
 
 > Notice the identifier of the created resources being prefixed with `module.storage`:
+>
 > - `module.storage.azurerm_storage_account.sa` for the Storage Account
 > - `module.storage.azurerm_storage_container.container` for the Container
 
