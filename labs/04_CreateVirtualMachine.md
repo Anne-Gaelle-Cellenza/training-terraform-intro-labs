@@ -55,7 +55,7 @@ resource "azurerm_linux_virtual_machine" "vm_training" {
   name                = "vm4agdtftraining"
   resource_group_name  = data.azurerm_resource_group.rg_training.name
   location            = "westeurope"
-  size                = "Standard_B2s"
+  size                = "Standard_B2ms"
   admin_username      = "adminuser"
   admin_password      = "P@ssword01!!"
   disable_password_authentication = false
