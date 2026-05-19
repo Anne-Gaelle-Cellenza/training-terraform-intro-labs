@@ -68,11 +68,22 @@ resource "azurerm_storage_account" "training_storage" {
 
 > We use the previous data block to retrieve the *resource_group_name* attribute.
 
-Open a (new) shell session and run the following commands:
+Open a shell session (bash or powershell) and run the following commands:
+
+PowerShell
 
 ```powershell
 az login
 $env:ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
+terraform init -backend-config=".\configuration\dev-backend.hcl"
+terraform plan
+```
+
+Bash
+
+```bash
+az login
+export ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
 terraform init -backend-config=".\configuration\dev-backend.hcl"
 terraform plan
 ```

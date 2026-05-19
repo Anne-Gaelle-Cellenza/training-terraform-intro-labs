@@ -28,6 +28,7 @@ After you complete this lab, you will be able to:
 
 - Ensure Terraform (version ~> 1.13.0) is installed and available from system PATH.
 - Ensure Azure CLI is installed.
+- Ensure Git is installed (required for downloading the module with a `git clone`).
 - Check your access to the Azure Subscription and Resource Group provided for this training.
 - Your environment is setup and ready to use from the lab *1-Setup environment*.
 
@@ -65,11 +66,21 @@ module "network" {
 > The documentation on this module can be found at https://registry.terraform.io/modules/Azure/network/azurerm/latest.  
 > Module download is done when `terraform init` is run. If you add a module in your template, run `terraform init` to download it.
 
-Open a (new) shell session and run the following commands:
+Open a shell session (bash or powershell) and run the following commands:
+
+PowerShell
 
 ```powershell
 az login
 $env:ARM_SUBSCRIPTION_ID="[Id of the provided training subscription]"
+terraform init -backend-config=".\configuration\dev-backend.hcl"
+```
+
+Bash
+
+```bash
+az login
+export ARM_SUBSCRIPTION_ID="[Id of the provided training subscription]"
 terraform init -backend-config=".\configuration\dev-backend.hcl"
 ```
 

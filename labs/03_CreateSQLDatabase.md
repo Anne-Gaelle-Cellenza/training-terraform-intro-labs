@@ -135,12 +135,24 @@ For the name of the `azurerm_mssql_server` instance, we use the interpolation sy
 
 #### Deploy resources
 
-Open a (new) shell session and run the following commands:
+Open a shell session (bash or powershell) and run the following commands:
+
+PowerShell
 
 ```powershell
 az login
 $env:ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
 $env:TF_VAR_admin_account_password="a_password_compliant_with_azure_sql_server_policy" # e.g. "Pwd@TFdev26"
+terraform init -backend-config=".\configuration\dev-backend.hcl" [-reconfigure]
+terraform plan -var-file=".\configuration\dev.tfvars"
+```
+
+Bash
+
+```bash
+az login
+export ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
+export TF_VAR_admin_account_password="a_password_compliant_with_azure_sql_server_policy" # e.g. "Pwd@TFdev26"
 terraform init -backend-config=".\configuration\dev-backend.hcl" [-reconfigure]
 terraform plan -var-file=".\configuration\dev.tfvars"
 ```
@@ -195,7 +207,7 @@ In the *configuration* folder, create a new file named `prod.tfvars` with the fo
 ```hcl
 admin_account_login = "trainingadmindb"
 project_name = "[a project name]prod"
-location = "westeurope"
+location = "northeurope"
 ```
 
 #### Deploy resources to the new environment
