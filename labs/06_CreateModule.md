@@ -60,7 +60,7 @@ data "azurerm_resource_group" "rg_training" {
 From the root folder create a **modules** folder and add a **storageaccount** sub-directory:
 
 ```bash
-cd src
+cd <root folder>
 mkdir modules
 cd modules
 mkdir storageaccount
@@ -112,7 +112,7 @@ resource "azurerm_storage_account" "sa" {
 
 resource "azurerm_storage_container" "container" {
   name                  = var.container_name
-  storage_account_name  = azurerm_storage_account.sa.name
+  storage_account_id    = azurerm_storage_account.sa.id
   container_access_type = "private"
 }
 ```
@@ -124,6 +124,10 @@ In the **outputs.tf** file define module outputs:
 ```hcl
 output "storage_account_full_name" {
   value = azurerm_storage_account.sa.name
+}
+
+output "storage_account_id" {
+  value = azurerm_storage_account.sa.id
 }
 ```
 
@@ -140,18 +144,32 @@ module "storage" {
 
   # specify input values for the module
   resource_group_name = data.azurerm_resource_group.rg_training.name
-  storage_name = "a_unique_name_goes_here"
+  storage_name = "set_your_trigram_here"
   container_name = "content" # this is not obligatory as a default value exist for the container name in the module
 }
 ```
 
-Run the following commands to initialize the backend (in the src folder of the root module):
+> We have added a new module in our Terraform templates.  
+> We must start again the *init* phase to install the module before being able to use ot in plan/apply phases.
+
+Open a shell session (bash or powershell) and run the following commands to initialize the backend (in the root folder):
+
+PowerShell
 
 ```powershell
 az login
 az account set --subscription "the_training_subscription_id"
 $env:ARM_SUBSCRIPTION_ID="the_training_subscription_id"
-terraform init -backend-config="..\configuration\dev\backend.hcl" -reconfigure
+terraform init -backend-config="..\configuration\dev-backend.hcl" -reconfigure
+```
+
+Bash
+
+```powershell
+az login
+az account set --subscription "the_training_subscription_id"
+export ARM_SUBSCRIPTION_ID="the_training_subscription_id"
+terraform init -backend-config="..\configuration\dev-backend.hcl" -reconfigure
 ```
 
 > Notice the initializing module step in the init logs.
@@ -159,7 +177,7 @@ terraform init -backend-config="..\configuration\dev\backend.hcl" -reconfigure
 Run the following commands to create resources:
 
 ```powershell
-terraform apply -var-file="..\configuration\dev\dev.tfvars"
+terraform apply -var-file="..\configuration\dev.tfvars"
 ```
 
 > Notice the identifier of the created resources being prefixed with `module.storage`:
@@ -176,17 +194,16 @@ In **main.tf** file of the root module, create the Queue with:
 
 ```hcl
 resource "azurerm_storage_queue" "queue" {
-  name                 = "mysamplequeue"
+  name               = "mysamplequeue"
   # we must indicate in which storage the queue is to be created
-  # try by using the name property of the storage account direct identifier
-  storage_account_name = module.storage.azurerm_storage_account.sa.name
+  storage_account_id = module.storage.azurerm_storage_account.sa.id
 }
 ```
 
 Run the following commands to create the resource:
 
 ```powershell
-terraform apply -var-file="..\configuration\dev\dev.tfvars"
+terraform apply -var-file="..\configuration\dev.tfvars"
 ```
 
 > Notice the error!  
@@ -198,16 +215,16 @@ Replace the content we added with the following block:
 
 ```hcl
 resource "azurerm_storage_queue" "queue" {
-  name                 = "mysamplequeue"
-  # here we reference the storage account name using the module output
-  storage_account_name = module.storage.storage_account_full_name
+  name               = "mysamplequeue"
+  # here we reference the storage account id using the module output
+  storage_account_id = module.storage.storage_account_id
 }
 ```
 
 Run the following command to create the resource:
 
 ```powershell
-terraform apply -var-file="..\configuration\dev\dev.tfvars"
+terraform apply -var-file="..\configuration\dev.tfvars"
 ```
 
 > Success!
@@ -218,5 +235,5 @@ terraform apply -var-file="..\configuration\dev\dev.tfvars"
 Remove all the created resources using the destroy command:
 
 ```powershell
-terraform destroy -var-file="..\configuration\dev\dev.tfvars"
+terraform destroy -var-file="..\configuration\dev.tfvars"
 ```

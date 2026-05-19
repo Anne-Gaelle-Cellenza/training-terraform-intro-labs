@@ -99,7 +99,7 @@ Notes:
     |=,no operator|Allows only one exact version number. Cannot be combined with other conditions.|
     |!=|Excludes an exact version number.|
     |>,>=,<,<=|Compares to a specified version. Terraform allows versions that resolve to true.<br>The > and >= operators request newer versions.<br>The < and <= operators request older versions.|
-    |~>|Allows only the right-most version component to increment.<br>Examples:<br>~> 1.0.4: Allows Terraform to install 1.0.5 and 1.0.10 but not 1.1.0.<br>~> 1.1: Allows Terraform to install 1.2 and 1.10 but not 2.0.|
+    |~>|Allows only the right-most version component to increment.<br>Examples:<br> ~> 1.0.4: Allows Terraform to install 1.0.5 and 1.0.10 but not 1.1.0.<br> ~> 1.1: Allows Terraform to install 1.2 and 1.10 but not 2.0.|
 
 1. In the **Terraform configuration block**, add the backend configuration using information on the Storage Account you created previously:
 
@@ -176,7 +176,7 @@ Get details at https://www.terraform.io/docs/cli/commands/fmt.html.
 
 #### Terraform init
 
-Once your template is ready, open a new shell session and login using AZ CLI
+Once your template is ready, open a shell session (bash or posershell) and login using AZ CLI
 
 ```powershell
 az login [--tenant "tenant_id"]
@@ -230,7 +230,7 @@ The subscription where deployment is to be performed can be sourced from an envi
 Using this mechanism allows you to keep a template free from any configuration settings.  
 
 Remove the *subscription_id* from the provider configuration block in the `providers.tf` file.  
-It now should be:
+It should now be:
 
 ```hcl
 provider "azurerm" {
@@ -240,11 +240,21 @@ provider "azurerm" {
 }
 ```
 
-Open a (new) shell session, and run the following commands:
+Open a shell session (use bash or powershell), and run the following commands:
+
+PowerShell
 
 ```powershell
 az login [--tenant "Tenant Id"]
 $env:ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
+terraform init
+```
+
+Bash
+
+```bash
+az login [--tenant "Tenant Id"]
+export ARM_SUBSCRIPTION_ID="Id of the provided training subscription"
 terraform init
 ```
 

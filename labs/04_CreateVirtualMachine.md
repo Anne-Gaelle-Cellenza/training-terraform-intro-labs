@@ -52,10 +52,10 @@ Create a `vm.tf` file, and add the following blocks to create a Virtual Machine:
 ```hcl
 # virtual machine
 resource "azurerm_linux_virtual_machine" "vm_training" {
-  name                = "vm4agdtftraining"
+  name                = "vm..." # <-- set your VM name here
   resource_group_name  = data.azurerm_resource_group.rg_training.name
-  location            = "westeurope"
-  size                = "Standard_B2ms"
+  location            = "northeurope"
+  size                = "Standard_B2MS"
   admin_username      = "adminuser"
   admin_password      = "P@ssword01!!"
   disable_password_authentication = false
@@ -79,7 +79,7 @@ resource "azurerm_linux_virtual_machine" "vm_training" {
 
 resource "azurerm_network_interface" "nic_training" {
   name                = "example-nic"
-  location            = "westeurope"
+  location            = "northeurope"
   resource_group_name  = data.azurerm_resource_group.rg_training.name
 
   ip_configuration {
@@ -99,7 +99,7 @@ resource "azurerm_subnet" "sn_training" {
 resource "azurerm_virtual_network" "vn_training" {
   name                = "example-network"
   address_space       = ["10.0.0.0/16"]
-  location            = "westeurope"
+  location            = "northeurope"
   resource_group_name = data.azurerm_resource_group.rg_training.name
 }
 
