@@ -176,7 +176,7 @@ Get details at https://www.terraform.io/docs/cli/commands/fmt.html.
 
 #### Terraform init
 
-Once your template is ready, open a shell session (bash or posershell) and login using AZ CLI
+Once your template is ready, open a shell session (bash or powershell) and login using AZ CLI
 
 ```powershell
 az login [--tenant "tenant_id"]
