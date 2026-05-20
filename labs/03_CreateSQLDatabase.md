@@ -101,7 +101,7 @@ In the *configuration* folder, create a file named `dev.tfvars` and add this con
 ```hcl
 admin_account_login = "trainingadmindb"
 project_name = "sampledev_with_my_trigram" # <-- replace with a unique name
-location = "westeurope"
+location = "northeurope"
 ```
 
 > `project_name` will be used to create resources with a public FQDN: choose an unique one for your resources (e.g. add you trigram).
