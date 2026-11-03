@@ -1,8 +1,8 @@
-# Lab overview
+# Create Storage Account
 
 In this lab, you will learn how to deploy a Storage Account using terraform workflow (cli).
 
-- [Lab overview](#lab-overview)
+- [Create Storage Account](#create-storage-account)
   - [Objectives](#objectives)
   - [Instructions](#instructions)
     - [Before you start](#before-you-start)
