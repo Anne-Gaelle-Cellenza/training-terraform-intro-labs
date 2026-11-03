@@ -121,7 +121,7 @@ Notes:
 
     ```hcl
     required_providers {
-      azurerm = ">= 4.0.0"
+      azurerm = "~> 4.0.0"
     }
     ```
 
@@ -159,7 +159,7 @@ terraform {
   }
 
   required_providers {
-    azurerm = ">= 4.0.0"
+    azurerm = "~> 4.0.0"
   }
 }
 
